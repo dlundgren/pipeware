@@ -1,0 +1,19 @@
+{
+    "name": "dlundgren/pipeware",
+    "description": "Pipelined PSR-15 middleware",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "David Lundgren",
+            "email": "dlundgren@syberisle.net"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.2",
+        "syberisle/pipeline": "dev-master",
+        "psr/http-server-middleware": "^1.0",
+        "psr/container": "^1.0"
+    }
+}
