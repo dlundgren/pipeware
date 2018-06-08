@@ -9,7 +9,7 @@ $stack = new \Pipeware\Pipe(
 );
 
 // append your responder
-$stack->apend(new Responder());
+$stack->append(new Responder());
 
 // append your error handler
 $stack->append(new ErrorHandler());
