@@ -1,22 +1,24 @@
 <?php
 
+/**
+ * @file
+ * Contains Pipeware\Stack
+ */
+
 namespace Pipeware;
 
+use Pipeware\Pipeline\Pipeline;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use SyberIsle\Pipeline\Pipeline;
 use SyberIsle\Pipeline\Processor;
 
 /**
- * Class Pipe
- *
- * This is a generic middleware stack.
+ * Generic Middleware stack
  *
  * @package Pipeware
  */
-class Pipe
+class Stack
 	implements RequestHandlerInterface
 {
 	/**
@@ -43,20 +45,31 @@ class Pipe
 	}
 
 	/**
-	 * Appends middleware to the stack
-	 *
-	 * @param $middleware
+	 * Reverses the direction of the pipeline
 	 */
-	public function append(MiddlewareInterface $middleware)
+	public function reverse()
 	{
-		// decorate the callable to be a middleware
-		if (is_callable($middleware)) {
-			$middleware = new Stage\Lambda($middleware);
-		}
+		$this->pipeline = $this->pipeline->withReversedOrder();
 
-		$this->pipeline->pipe($middleware);
+		return $this;
 	}
 
+	/**
+	 * Pushes middleware on the stack
+	 *
+	 * @param $middleware
+	 * @return Stack
+	 */
+	public function push($middleware)
+	{
+		$this->pipeline = $this->pipeline->pipe($middleware);
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
 	public function handle(ServerRequestInterface $request): ResponseInterface
 	{
 		return $this->processor->process($this->pipeline, $request);

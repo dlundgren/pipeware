@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains Pipeware\Stage\MatchUri
+ */
+
 namespace Pipeware\Stage;
 
 use Psr\Http\Message\ResponseInterface;
@@ -7,7 +12,14 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class Match
+/**
+ * Class MatchUri
+ *
+ * Runs an alternate handler if the URI matches
+ *
+ * @package Pipeware\Stage
+ */
+class MatchUri
 	implements MiddlewareInterface
 {
 	/**
@@ -22,17 +34,18 @@ class Match
 
 	public function __construct(RequestHandlerInterface $handler, $match)
 	{
-		$this->handler = $match;
+		$this->handler = $handler;
 		$this->match   = $match;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
 	{
-		if ($request->getUri()->getPath() !== $this->match) {
-			return ($handler)($request);
-		}
-
-		return ($this->handler)($request, $handler);
+		return $request->getUri()->getPath() === $this->match
+			? $handler->handle($request)
+			: $this->handler->handle($request);
 	}
 
 }

@@ -1,46 +1,73 @@
 <?php
 
+/**
+ * @file
+ * Contains Pipeware\Processor
+ */
+
 namespace Pipeware;
 
+use Interop\Http\Factory\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use SyberIsle\Pipeline;
 
 /**
- * PSR-15 Middleware handler
- *
- * Class MiddlewareProcessor
+ * PSR-15 pipeline processor
  *
  * @package Pipeware
  */
 class Processor
-	implements Pipeline\Processor
+	implements Pipeline\Processor, RequestHandlerInterface
 {
-	public function process(Pipeline\Pipeline $pipeline, $payload)
+	/**
+	 * @var \Generator
+	 */
+	protected $stages;
+
+	/**
+	 * @var ResponseFactoryInterface
+	 */
+	protected $responseFactory;
+
+	public function __construct(ResponseFactoryInterface $responseFactory)
 	{
-		$stages = $pipeline->stages();
-		if (empty($stages)) {
-			throw new \InvalidArgumentException("No middleware available");
+		$this->responseFactory = $responseFactory;
+	}
+
+	/**
+	 * Handle the request
+	 *
+	 * @param ServerRequestInterface $request
+	 * @return ResponseInterface
+	 */
+	public function handle(ServerRequestInterface $request): ResponseInterface
+	{
+		if ($this->stages->valid()) {
+			$stage = $this->stages->current();
+			$this->stages->next();
+
+			return $stage->process($request, $this);
 		}
 
-		// initial payload is the request, and we want responses
-		return (new class($stages)
-			implements RequestHandlerInterface
-		{
-			private $stages;
+		return $this->responseFactory->createResponse(404);
+	}
 
-			public function __construct($stages)
-			{
-				$this->stages = $stages;
-			}
+	/**
+	 * Process the payload
+	 *
+	 * Returns this with the stages set
+	 *
+	 * @param Pipeline\Pipeline $pipeline
+	 * @param                   $payload
+	 * @return mixed|ResponseInterface
+	 */
+	public function process(Pipeline\Pipeline $pipeline, $payload)
+	{
+		$runner         = clone($this);
+		$runner->stages = $pipeline->getIterator();
 
-			public function handle(ServerRequestInterface $request): ResponseInterface
-			{
-				$stage = array_pop($this->stages);
-
-				return $stage->process($request, empty($this->stages) ? null : $this);
-			}
-		})->handle($payload);
+		return $runner->handle($payload);
 	}
 }

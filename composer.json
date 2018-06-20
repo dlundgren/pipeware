@@ -1,19 +1,39 @@
 {
-    "name": "dlundgren/pipeware",
-    "description": "Pipelined PSR-15 middleware",
-    "type": "library",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "David Lundgren",
-            "email": "dlundgren@syberisle.net"
-        }
-    ],
-    "minimum-stability": "dev",
-    "require": {
-        "php": ">=7.2",
-        "syberisle/pipeline": "dev-master",
-        "psr/http-server-middleware": "^1.0",
-        "psr/container": "^1.0"
+  "name": "dlundgren/pipeware",
+  "description": "Pipelined PSR-15 middleware",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "David Lundgren",
+      "email": "dlundgren@syberisle.net"
     }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Pipeware\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Pipeware\\Stub\\": "spec/stub"
+    }
+  },
+  "require": {
+    "php": ">=7.2",
+    "http-interop/http-factory": "^0.3",
+    "psr/container": "^1.0",
+    "psr/http-server-middleware": "^1.0",
+    "syberisle/pipeline": "^1.0"
+  },
+  "require-dev": {
+    "phpspec/phpspec": "^3.0",
+    "middlewares/utils": "^1",
+    "slim/http": "dev-master",
+    "henrikbjorn/phpspec-code-coverage": "^3.0",
+    "aura/di": "3.x-dev"
+  },
+  "scripts" : {
+    "test": "vendor/bin/phpspec run"
+  }
 }

@@ -1,0 +1,16 @@
+---
+suites:
+    pipeline_suite:
+        namespace: Pipeware
+        psr4_prefix: Pipeware
+
+extensions:
+    Pipeware\Stub\PipewareExtension: ~
+    PhpSpecCodeCoverage\CodeCoverageExtension:
+        format:
+          - html
+          - clover
+          - text
+        output:
+          html: coverage
+          clover: coverage.xml
