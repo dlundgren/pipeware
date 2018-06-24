@@ -18,8 +18,8 @@ class AddOne
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler ): ResponseInterface
 	{
 		$counter = $request->getAttribute('counter');
+		$counter->count += 1;
 
-		return $handler->handle($request->withAttribute('counter', $counter + 1));
+		return $handler->handle($request)->withHeader('counter', $counter);
 	}
-
 }

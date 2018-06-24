@@ -21,4 +21,13 @@ interface Pipeline
 	 * @return mixed
 	 */
 	public function withReversedOrder();
+
+	/**
+	 * Replaces the stage in the pipeline with the given instance
+	 *
+	 * @param $needle
+	 * @param $replacement
+	 * @return mixed
+	 */
+	public function replace($needle, $replacement);
 }

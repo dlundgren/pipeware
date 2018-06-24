@@ -21,6 +21,18 @@ class Basic
 	extends Pipeline\Simple
 	implements PipewareInterface
 {
+	use IsPipeline;
+
+	/**
+	 * @param $stage
+	 * @param $needle
+	 * @return bool
+	 */
+	protected function matches($stage, $needle)
+	{
+		return $stage instanceof $needle;
+	}
+
 	/**
 	 * {@inheritdoc}
 	 */

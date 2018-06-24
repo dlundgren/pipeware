@@ -13,7 +13,10 @@ use PhpSpec\ObjectBehavior;
 use Pipeware\Pipeline\Basic;
 use Pipeware\Processor;
 use Pipeware\Stack;
+use Pipeware\Stub\AddOne;
+use Pipeware\Stub\TimesTwo;
 use Prophecy\Argument\Token\AnyValueToken;
+use Prophecy\Prediction\CallbackPrediction;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Response;
@@ -22,6 +25,9 @@ class StackSpec extends ObjectBehavior
 {
 	public function let($pipeline, $factory, $processor, $request, $response)
 	{
+		// this is silly, but required for coverage to work
+		ini_set('error_reporting', E_ALL & !E_WARNING);
+
 		$pipeline->beADoubleOf(Basic::class);
 		$pipeline->pipe(new AnyValueToken())->willReturn($pipeline);
 		$response->beADoubleOf(ResponseInterface::class);
@@ -70,5 +76,21 @@ class StackSpec extends ObjectBehavior
 		$r = $this->handle($request);
 		$r->shouldReturnAnInstanceOf(ResponseInterface::class);
 		$r->getStatusCode()->shouldBe(403);
+	}
+
+	public function it_should_replace_stages_in_stack($request)
+	{
+		$b = (new Basic())->pipe(new AddOne())
+						  ->pipe(new TimesTwo());
+		$p = new Processor(new ResponseFactory());
+		$counter = new \stdClass();
+		$counter->count = 1;
+		$request->getAttribute('counter')->willReturn($counter);
+
+		$this->beConstructedWith($b, $p);
+		$this->replace(AddOne::class, new TimesTwo());
+
+		$r = $this->handle($request);
+		$r->getHeader('counter')->shouldBe([4]);
 	}
 }

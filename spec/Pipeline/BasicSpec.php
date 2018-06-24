@@ -11,6 +11,7 @@ use PhpSpec\ObjectBehavior;
 use Pipeware\Pipeline\Basic;
 use Pipeware\Stage\Lambda;
 use Pipeware\Stub\AddOne;
+use Pipeware\Stub\TimesTwo;
 
 class BasicSpec
 	extends ObjectBehavior
@@ -58,5 +59,13 @@ class BasicSpec
 		$a = new AddOne();
 		$p = $this->pipe($a)->pipe($a);
 		$p->stages()->shouldBeSameStagesAs([$a, $a]);
+	}
+
+	public function it_should_replace_a_stage()
+	{
+		$a = new AddOne();
+		$t = new TimesTwo();
+		$p = $this->pipe($a)->pipe($t)->replace(AddOne::class, $t);
+		$p->stages()->shouldBeSameStagesAs([$t, $t]);
 	}
 }

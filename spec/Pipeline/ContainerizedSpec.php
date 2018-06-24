@@ -118,4 +118,17 @@ class ContainerizedSpec
 		$p = $this->pipe('test');
 		$p->stages()->shouldBeSameStagesAs([$a]);
 	}
+
+	public function it_should_replace_a_stage($container)
+	{
+		$a = new AddOne();
+		$t = new TimesTwo();
+
+		$container->has('two')->willReturn(true);
+		$container->get('two')->willReturn($a);
+		$this->beConstructedWith($container);
+
+		$p = $this->pipe('test')->pipe($t)->replace('test', 'two');
+		$p->stages()->shouldBeSameStagesAs([$a, $t]);
+	}
 }

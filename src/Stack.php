@@ -68,6 +68,20 @@ class Stack
 	}
 
 	/**
+	 * Replaces middleware on the stack
+	 *
+	 * @param $middleware
+	 * @param $with
+	 * @return $this
+	 */
+	public function replace($middleware, $with)
+	{
+		$this->pipeline = $this->pipeline->replace($middleware, $with);
+
+		return $this;
+	}
+
+	/**
 	 * {@inheritdoc}
 	 */
 	public function handle(ServerRequestInterface $request): ResponseInterface

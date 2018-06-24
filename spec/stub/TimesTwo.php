@@ -18,7 +18,9 @@ class TimesTwo
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
 	{
 		$counter = $request->getAttribute('counter');
-		return $handler->handle($request->withAttribute('counter', $counter * 2));
+		$counter->count *= 2;
+
+		return $handler->handle($request)->withHeader('counter', $counter->count);
 	}
 
 }

@@ -21,6 +21,8 @@ use SyberIsle\Pipeline\Pipeline;
 class Containerized
 	implements PipewareInterface
 {
+	use IsPipeline;
+
 	/**
 	 * @var ContainerInterface
 	 */
@@ -63,11 +65,21 @@ class Containerized
 	}
 
 	/**
+	 * @param $stage
+	 * @param $needle
+	 * @return bool
+	 */
+	protected function matches($stage, $needle)
+	{
+		return $stage == $needle;
+	}
+
+	/**
 	 * Reverses the order of the stages
 	 *
 	 * @return Containerized
 	 */
-	public function withReversedOrder()
+	public function withReversedOrder(): Containerized
 	{
 		return new self($this->container, array_reverse($this->stages));
 	}
