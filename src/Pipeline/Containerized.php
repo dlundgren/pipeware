@@ -7,6 +7,7 @@
 
 namespace Pipeware\Pipeline;
 
+use Pipeware\Pipeline\Exception\InvalidMiddlewareArgument;
 use Pipeware\Stage\Lambda;
 use Pipeware\Pipeline\Pipeline as PipewareInterface;
 use Psr\Container\ContainerInterface;
@@ -172,7 +173,7 @@ class Containerized
 			$stages[] = new Lambda($stage);
 		}
 		else {
-			throw new \InvalidArgumentException("Middleware must be an instance of MiddlewareInterface, Pipeline, or a callable: " . get_class($stage));
+			throw new InvalidMiddlewareArgument(get_class($stage));
 		}
 	}
 }

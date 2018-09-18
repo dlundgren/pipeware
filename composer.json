@@ -9,6 +9,9 @@
       "email": "dlundgren@syberisle.net"
     }
   ],
+  "config": {
+    "sort-packages": true
+  },
   "autoload": {
     "psr-4": {
       "Pipeware\\": "src"
@@ -21,19 +24,28 @@
   },
   "require": {
     "php": ">=7.2",
-    "http-interop/http-factory": "^0.3",
+    "psr/http-factory": "^1.0",
     "psr/container": "^1.0",
     "psr/http-server-middleware": "^1.0",
     "syberisle/pipeline": "^1.0"
   },
   "require-dev": {
-    "phpspec/phpspec": "^3.0",
-    "middlewares/utils": "^1",
-    "slim/http": "dev-master",
+    "aura/di": "^3.4",
     "henrikbjorn/phpspec-code-coverage": "^3.0",
-    "aura/di": "^3.4"
+    "middlewares/utils": "^1 | ^2",
+    "phpspec/phpspec": "^3.0",
+    "slim/http": "dev-master",
+    "syberisle/coding-standards": "^2.0"
   },
-  "scripts" : {
-    "test": "vendor/bin/phpspec run"
+  "scripts": {
+    "test": "vendor/bin/phpspec run",
+    "sniff": [
+      "phpcs --config-set installed_paths vendor/syberisle/coding-standards",
+      "phpcs --standard=SyberIsle src/"
+    ],
+    "format": [
+      "phpcs --config-set installed_paths vendor/syberisle/coding-standards",
+      "phpcbf --standard=SyberIsle src/"
+    ]
   }
 }

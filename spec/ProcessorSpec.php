@@ -7,7 +7,7 @@
 
 namespace spec\Pipeware;
 
-use Interop\Http\Factory\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use PhpSpec\ObjectBehavior;
 use Pipeware\Pipeline\Basic;
 use Psr\Http\Message\ServerRequestInterface;

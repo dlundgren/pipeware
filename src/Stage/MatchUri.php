@@ -47,5 +47,4 @@ class MatchUri
 			? $handler->handle($request)
 			: $this->handler->handle($request);
 	}
-
 }

@@ -7,8 +7,8 @@
 
 namespace spec\Pipeware;
 
-use Interop\Http\Factory\ResponseFactoryInterface;
-use Middlewares\Utils\Factory\ResponseFactory;
+use Middlewares\Utils\Factory;
+use Psr\Http\Message\ResponseFactoryInterface;
 use PhpSpec\ObjectBehavior;
 use Pipeware\Pipeline\Basic;
 use Pipeware\Processor;
@@ -16,7 +16,6 @@ use Pipeware\Stack;
 use Pipeware\Stub\AddOne;
 use Pipeware\Stub\TimesTwo;
 use Prophecy\Argument\Token\AnyValueToken;
-use Prophecy\Prediction\CallbackPrediction;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Response;
@@ -53,7 +52,7 @@ class StackSpec extends ObjectBehavior
 	{
 		$b = (new Basic())->pipe(function () { return new Response(418); })
 						  ->pipe(function () { return new Response(403);});
-		$p = new Processor(new ResponseFactory());
+		$p = new Processor(Factory::getResponseFactory());
 
 		$this->beConstructedWith($b, $p);
 
@@ -67,7 +66,7 @@ class StackSpec extends ObjectBehavior
 	{
 		$b = (new Basic())->pipe(function () { return new Response(418); })
 						  ->pipe(function () { return new Response(403);});
-		$p = new Processor(new ResponseFactory());
+		$p = new Processor(Factory::getResponseFactory());
 
 		$this->beConstructedWith($b, $p);
 
@@ -82,7 +81,7 @@ class StackSpec extends ObjectBehavior
 	{
 		$b = (new Basic())->pipe(new AddOne())
 						  ->pipe(new TimesTwo());
-		$p = new Processor(new ResponseFactory());
+		$p = new Processor(Factory::getResponseFactory());
 		$counter = new \stdClass();
 		$counter->count = 1;
 		$request->getAttribute('counter')->willReturn($counter);

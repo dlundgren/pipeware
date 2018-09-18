@@ -37,5 +37,4 @@ class Lambda
 	{
 		return ($this->callable)($request, $handler);
 	}
-
 }

@@ -7,6 +7,7 @@
 
 namespace Pipeware\Pipeline;
 
+use Pipeware\Pipeline\Exception\InvalidMiddlewareArgument;
 use Pipeware\Stage\Lambda;
 use Pipeware\Pipeline\Pipeline as PipewareInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -38,7 +39,7 @@ class Basic
 	 */
 	public function withReversedOrder()
 	{
-		$pipeline = clone $this;
+		$pipeline         = clone $this;
 		$pipeline->stages = array_reverse($this->stages);
 
 		return $pipeline;
@@ -59,7 +60,7 @@ class Basic
 	/**
 	 * Handles merging or converting the stage to a callback
 	 *
-	 * @param array                                 $stages
+	 * @param array                                          $stages
 	 * @param PipewareInterface|MiddlewareInterface|callable $stage
 	 */
 	protected function handleStage(&$stages, $stage)
@@ -74,8 +75,7 @@ class Basic
 			$stages[] = new Lambda($stage);
 		}
 		else {
-			$data = is_object($stage) ? get_class($stage) : json_encode($stage);
-			throw new \InvalidArgumentException("Middleware must be an instance of MiddlewareInterface, Pipeline, or a callable: {$data}");
+			throw new InvalidMiddlewareArgument(is_object($stage) ? get_class($stage) : json_encode($stage));
 		}
 	}
 }
