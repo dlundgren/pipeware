@@ -10,7 +10,9 @@ namespace Pipeware\Pipeline;
 use Pipeware\Pipeline\Exception\InvalidMiddlewareArgument;
 use Pipeware\Stage\Lambda;
 use Pipeware\Pipeline\Pipeline as PipewareInterface;
+use Pipeware\Stage\RequestHandler;
 use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use SyberIsle\Pipeline\Pipeline;
 
 /**
@@ -70,6 +72,9 @@ class Basic
 		}
 		elseif ($stage instanceof MiddlewareInterface) {
 			$stages[] = $stage;
+		}
+		elseif ($stage instanceof RequestHandlerInterface) {
+			$stages[] = new RequestHandler($stage);
 		}
 		elseif (is_callable($stage)) {
 			$stages[] = new Lambda($stage);

@@ -7,8 +7,6 @@
 
 namespace Pipeware\Pipeline;
 
-use Pipeware\Pipeline\Exception\InvalidMiddlewareArgument;
-use Pipeware\Stage\Lambda;
 use Pipeware\Pipeline\Pipeline as PipewareInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -27,21 +25,21 @@ class Containerized
 	/**
 	 * @var ContainerInterface
 	 */
-	private $container;
+	protected $container;
 
 	/**
 	 * The list of middleware
 	 *
 	 * @var array
 	 */
-	private $stages = [];
+	protected $stages = [];
 
 	/**
 	 * The list of resolved middleware
 	 *
 	 * @var array
 	 */
-	private $resolved;
+	protected $resolved;
 
 	public function __construct($container, $middleware = [])
 	{
@@ -144,7 +142,11 @@ class Containerized
 		}
 
 		if ($this->container->has($stage)) {
-			return $this->container->get($stage);
+			$stage = $this->container->get($stage);
+			if ($stage instanceof MiddlewareInterface) {
+				return $stage;
+			}
+			throw new \RuntimeException("Stage is not a valid " . MiddlewareInterface::class);
 		}
 
 		// Support aura/di
@@ -153,27 +155,5 @@ class Containerized
 		}
 
 		throw new \RuntimeException("Unable to resolve $stage");
-	}
-
-	/**
-	 * Handles merging or converting the stage to a callback
-	 *
-	 * @param array                    $stages
-	 * @param Pipeline|string|callable $stage
-	 */
-	private function handleStage(&$stages, $stage)
-	{
-		if ($stage instanceof Pipeline) {
-			$stages = array_merge($stages, $stage->stages());
-		}
-		elseif ($stage instanceof MiddlewareInterface || is_string($stage)) {
-			$stages[] = $stage;
-		}
-		elseif (is_callable($stage)) {
-			$stages[] = new Lambda($stage);
-		}
-		else {
-			throw new InvalidMiddlewareArgument(get_class($stage));
-		}
 	}
 }

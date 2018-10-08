@@ -11,7 +11,9 @@ use Aura\Di\Container;
 use PhpSpec\ObjectBehavior;
 use Pipeware\Pipeline\Basic;
 use Pipeware\Pipeline\Containerized;
+use Pipeware\Stage\RequestHandler;
 use Pipeware\Stub\AddOne;
+use Pipeware\Stub\RandomRequestHandler;
 use Pipeware\Stub\TimesTwo;
 use Psr\Container\ContainerInterface;
 
@@ -130,5 +132,29 @@ class ContainerizedSpec
 
 		$p = $this->pipe('test')->pipe($t)->replace('test', 'two');
 		$p->stages()->shouldBeSameStagesAs([$a, $t]);
+	}
+
+	public function it_should_allow_requesthandlerinterfaces_to_pipe()
+	{
+		$r = new RandomRequestHandler();
+		$p = $this->pipe($r);
+
+		$p->stages()->shouldBeStages([new RequestHandler($r)]);
+	}
+
+	public function it_should_validate_stages_on_build($container)
+	{
+		$a = new AddOne();
+		$t = new \stdClass();
+
+		$container->has('test')->willReturn(true);
+		$container->get('test')->willReturn($a);
+		$container->has('two')->willReturn(true);
+		$container->get('two')->willReturn($t);
+		$this->beConstructedWith($container);
+
+		$p = $this->pipe('test')->pipe('two');
+
+		$p->shouldThrow(\RuntimeException::class)->duringStages();
 	}
 }

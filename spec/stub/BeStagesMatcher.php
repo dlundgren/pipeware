@@ -14,6 +14,8 @@ use Pipeware\Stage\Lambda;
 class BeStagesMatcher
 	implements Matcher
 {
+	private $exactMatches = false;
+
 	private $names = [
 		'beStages',
 		'beSameStagesAs'

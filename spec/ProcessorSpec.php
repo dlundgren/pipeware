@@ -7,6 +7,8 @@
 
 namespace spec\Pipeware;
 
+use Pipeware\Pipeline\Containerized;
+use Pipeware\Stub\RandomRequestHandler;
 use Psr\Http\Message\ResponseFactoryInterface;
 use PhpSpec\ObjectBehavior;
 use Pipeware\Pipeline\Basic;
@@ -39,6 +41,8 @@ class ProcessorSpec extends ObjectBehavior
 		$pipeline = new Basic();
 
 		$request->beADoubleOf(ServerRequestInterface::class);
-		$this->process($pipeline, $request)->shouldReturnAnInstanceOf(Response::class);
+		$response = $this->process($pipeline, $request);
+		$response->shouldReturnAnInstanceOf(Response::class);
+		$response->getStatusCode()->shouldBeEqualTo(404);
 	}
 }

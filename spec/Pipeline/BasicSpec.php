@@ -10,7 +10,9 @@ namespace spec\Pipeware\Pipeline;
 use PhpSpec\ObjectBehavior;
 use Pipeware\Pipeline\Basic;
 use Pipeware\Stage\Lambda;
+use Pipeware\Stage\RequestHandler;
 use Pipeware\Stub\AddOne;
+use Pipeware\Stub\RandomRequestHandler;
 use Pipeware\Stub\TimesTwo;
 
 class BasicSpec
@@ -67,5 +69,13 @@ class BasicSpec
 		$t = new TimesTwo();
 		$p = $this->pipe($a)->pipe($t)->replace(AddOne::class, $t);
 		$p->stages()->shouldBeSameStagesAs([$t, $t]);
+	}
+
+	public function it_should_allow_requesthandlerinterfaces_to_pipe($request)
+	{
+		$r = new RandomRequestHandler();
+		$p = $this->pipe($r);
+
+		$p->stages()->shouldBeStages([new RequestHandler($r)]);
 	}
 }
