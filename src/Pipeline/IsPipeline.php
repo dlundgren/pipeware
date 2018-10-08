@@ -68,12 +68,12 @@ trait IsPipeline
 	 * @param array                    $stages
 	 * @param Pipeline|MiddlewareInterface|RequestHandlerInterface|string|callable $stage
 	 */
-	private function handleStage(&$stages, $stage)
+	protected function handleStage(&$stages, $stage)
 	{
 		if ($stage instanceof Pipeline) {
 			$stages = array_merge($stages, $stage->stages());
 		}
-		elseif ($stage instanceof MiddlewareInterface || is_string($stage)) {
+		elseif ($stage instanceof MiddlewareInterface) {
 			$stages[] = $stage;
 		}
 		elseif ($stage instanceof RequestHandlerInterface) {
@@ -83,7 +83,7 @@ trait IsPipeline
 			$stages[] = new Lambda($stage);
 		}
 		else {
-			throw new InvalidMiddlewareArgument(get_class($stage));
+			throw new InvalidMiddlewareArgument(is_string($stage) ? $stage : get_class($stage));
 		}
 	}
 }

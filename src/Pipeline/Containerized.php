@@ -8,8 +8,10 @@
 namespace Pipeware\Pipeline;
 
 use Pipeware\Pipeline\Pipeline as PipewareInterface;
+use Pipeware\Stage\RequestHandler;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use SyberIsle\Pipeline\Pipeline;
 
 /**
@@ -20,7 +22,9 @@ use SyberIsle\Pipeline\Pipeline;
 class Containerized
 	implements PipewareInterface
 {
-	use IsPipeline;
+	use IsPipeline {
+		IsPipeline::handleStage as traitHandleStage;
+	}
 
 	/**
 	 * @var ContainerInterface
@@ -64,16 +68,6 @@ class Containerized
 	}
 
 	/**
-	 * @param $stage
-	 * @param $needle
-	 * @return bool
-	 */
-	protected function matches($stage, $needle)
-	{
-		return $stage == $needle;
-	}
-
-	/**
 	 * Reverses the order of the stages
 	 *
 	 * @return Containerized
@@ -113,6 +107,64 @@ class Containerized
 	}
 
 	/**
+	 * Builds the stage as a
+	 *
+	 * @param $stage
+	 * @return MiddlewareInterface
+	 * @throws \Psr\Container\ContainerExceptionInterface
+	 * @throws \Psr\Container\NotFoundExceptionInterface
+	 */
+	protected function build($stage)
+	{
+		if ($stage instanceof MiddlewareInterface) {
+			return $stage;
+		}
+
+		if ($this->container->has($stage)) {
+			$stage = $this->container->get($stage);
+			if ($stage instanceof RequestHandlerInterface) {
+				return new RequestHandler($stage);
+			}
+
+			if ($stage instanceof MiddlewareInterface) {
+				return $stage;
+			}
+
+			throw new \RuntimeException("Stage is not a valid " . MiddlewareInterface::class);
+		}
+
+		// Support aura/di
+		if (method_exists($this->container, 'newInstance')) {
+			return $this->container->newInstance($stage);
+		}
+
+		throw new \RuntimeException("Unable to resolve $stage");
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function handleStage(&$stages, $stage)
+	{
+		if (is_string($stage)) {
+			$stages[] = $stage;
+		}
+		else {
+			$this->traitHandleStage($stages, $stage);
+		}
+	}
+
+	/**
+	 * @param $stage
+	 * @param $needle
+	 * @return bool
+	 */
+	protected function matches($stage, $needle)
+	{
+		return $stage == $needle;
+	}
+
+	/**
 	 * Resolves all stages to middleware
 	 */
 	protected function resolve()
@@ -125,35 +177,5 @@ class Containerized
 		foreach ($this->stages as $stage) {
 			$this->resolved[] = $this->build($stage);
 		}
-	}
-
-	/**
-	 * Builds the stage as a
-	 *
-	 * @param $stage
-	 * @return MiddlewareInterface
-	 * @throws \Psr\Container\ContainerExceptionInterface
-	 * @throws \Psr\Container\NotFoundExceptionInterface
-	 */
-	private function build($stage)
-	{
-		if ($stage instanceof MiddlewareInterface) {
-			return $stage;
-		}
-
-		if ($this->container->has($stage)) {
-			$stage = $this->container->get($stage);
-			if ($stage instanceof MiddlewareInterface) {
-				return $stage;
-			}
-			throw new \RuntimeException("Stage is not a valid " . MiddlewareInterface::class);
-		}
-
-		// Support aura/di
-		if (method_exists($this->container, 'newInstance')) {
-			return $this->container->newInstance($stage);
-		}
-
-		throw new \RuntimeException("Unable to resolve $stage");
 	}
 }

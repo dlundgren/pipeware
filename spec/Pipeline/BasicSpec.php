@@ -39,7 +39,10 @@ class BasicSpec
 				  ->pipe($a);
 		$p->shouldHaveType(Basic::class);
 		$p->shouldNotBe($this);
+	}
 
+	public function it_should_not_accept_strings()
+	{
 		$this->shouldThrow(\InvalidArgumentException::class)
 			 ->during('pipe', ['test']);
 	}

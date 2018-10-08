@@ -27,16 +27,6 @@ class Basic
 	use IsPipeline;
 
 	/**
-	 * @param $stage
-	 * @param $needle
-	 * @return bool
-	 */
-	protected function matches($stage, $needle)
-	{
-		return $stage instanceof $needle;
-	}
-
-	/**
 	 * {@inheritdoc}
 	 */
 	public function withReversedOrder()
@@ -60,27 +50,12 @@ class Basic
 	}
 
 	/**
-	 * Handles merging or converting the stage to a callback
-	 *
-	 * @param array                                          $stages
-	 * @param PipewareInterface|MiddlewareInterface|callable $stage
+	 * @param $stage
+	 * @param $needle
+	 * @return bool
 	 */
-	protected function handleStage(&$stages, $stage)
+	protected function matches($stage, $needle)
 	{
-		if ($stage instanceof PipewareInterface) {
-			$stages = array_merge($stages, $stage->stages());
-		}
-		elseif ($stage instanceof MiddlewareInterface) {
-			$stages[] = $stage;
-		}
-		elseif ($stage instanceof RequestHandlerInterface) {
-			$stages[] = new RequestHandler($stage);
-		}
-		elseif (is_callable($stage)) {
-			$stages[] = new Lambda($stage);
-		}
-		else {
-			throw new InvalidMiddlewareArgument(is_object($stage) ? get_class($stage) : json_encode($stage));
-		}
+		return $stage instanceof $needle;
 	}
 }
