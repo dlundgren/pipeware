@@ -22,6 +22,11 @@ class Processor
 	implements Pipeline\Processor, RequestHandlerInterface
 {
 	/**
+	 * @var Pipeline\Pipeline
+	 */
+	protected $pipeline;
+
+	/**
 	 * @var \Generator
 	 */
 	protected $stages;
@@ -65,9 +70,24 @@ class Processor
 	 */
 	public function process(Pipeline\Pipeline $pipeline, $payload)
 	{
-		$runner         = clone($this);
-		$runner->stages = $pipeline->getIterator();
+		$runner           = clone($this);
+		$runner->stages   = $pipeline->getIterator();
+		$runner->pipeline = $pipeline;
 
 		return $runner->handle($payload);
+	}
+
+	/**
+	 * Clones the stages from the pipeline to be used from the clone
+	 */
+	public function __clone()
+	{
+		if (isset($this->pipeline)) {
+			$index        = $this->stages->key();
+			$this->stages = $this->pipeline->getIterator();
+			while ($this->stages->key() != $index) {
+				$this->stages->next();
+			}
+		}
 	}
 }
