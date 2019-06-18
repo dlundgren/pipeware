@@ -45,7 +45,7 @@ class Containerized
 	 */
 	protected $resolved;
 
-	public function __construct($container, $middleware = [])
+	public function __construct(ContainerInterface $container, $middleware = [])
 	{
 		$this->container = $container;
 		foreach ((array)$middleware as $stage) {
